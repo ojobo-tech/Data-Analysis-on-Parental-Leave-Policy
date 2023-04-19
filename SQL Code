@@ -1,0 +1,135 @@
+select * from parental_leave;
+
+#Total number of companies surveyed
+select count(company) as total_companies
+from parental_leave;
+
+#Total number of industry and sub-industry surveyed
+select count(distinct(Industry)) as num_industry
+from parental_leave;
+
+#Count of companies that offer paid maternal leave
+select count(company) as count_companies
+from parental_leave
+where Paid_Maternity_leave > 0;
+
+#Count of companies that offer paid paternal leave
+select count(company) as count_companies
+from parental_leave
+where Paid_paternity_leave > 0;
+
+#Count of companies that offer unpaid maternal leave
+select count(company) as count_companies
+from parental_leave
+where unPaid_Maternity_leave = 0;
+
+#Count of companies that offer unpaid paternal leave
+select count(company) as count_companies
+from parental_leave
+where unPaid_paternity_leave = 0;
+
+#Total Duration of leave by gender
+SELECT avg(Paid_Maternity_Leave + Unpaid_Maternity_Leave) as maternity_leave, avg(Paid_paternity_Leave + Unpaid_paternity_Leave) as paternity_leave,ROUND(COUNT(company) * 100.0 / SUM(COUNT(company)) OVER(),1) AS Duration_Percentage
+from parental_leave;
+
+#Total Duration of Paid leave by gender
+SELECT avg(Paid_Maternity_Leave) as maternity_leave, avg(Paid_paternity_Leave) as paternity_leave
+from parental_leave;
+
+#Total Duration of Unpaid leave by gender
+SELECT avg(unPaid_Maternity_Leave) as maternity_leave, avg(unPaid_paternity_Leave) as paternity_leave
+from parental_leave;
+
+#Count of companies that offer paid maternity leave but no paid paternity leave
+select count(company) as count_companies, avg(Paid_Maternity_Leave)
+from parental_leave
+where Paid_maternity_leave > 0 and Paid_paternity_leave = 0;
+
+#Top 5 Industries that offer paid maternity leave but no paid paternity leave
+select industry, AVG(Paid_Paternity_Leave) as Average_Duration
+from parental_leave
+where Paid_maternity_leave > 0 and Paid_paternity_leave = 0
+group by industry
+order by Average_Duration desc
+limit 5;
+
+#Industries that offer paid maternity leave but no paid paternity leave
+select count(company) as count_companies, count(distinct(industry)) as count_industry
+from parental_leave
+where Paid_maternity_leave > 0 and Paid_paternity_leave = 0;
+
+#Count of companies that offer paid paternity leave but no paid maternity leave
+select industry, count(company) as count_companies, AVG(Paid_Paternity_Leave) as Average_Duration
+from parental_leave
+where Paid_maternity_leave = 0 and Paid_paternity_leave > 0
+group by industry
+order by count_companies desc;
+
+#Top 5 Industries with the most paid_paternity_leave duration
+select industry, count(company) as count_companies, AVG(Paid_Paternity_Leave) as Average_Duration
+from parental_leave
+where Paid_paternity_leave > 0
+group by industry
+order by Average_Duration desc
+limit 5;
+
+#Top 5 Industries with the most paid_maternity_leave duration
+select industry, count(company) as count_company, AVG(Paid_maternity_Leave) Average_Duration
+from parental_leave
+where Paid_maternity_leave > 0
+group by industry
+order by Average_Duration desc
+limit 5;
+
+#Top 5 Industries with the most unpaid_paternity_leave duration
+select industry, count(company) as count_companies, AVG(unPaid_Paternity_Leave) as Average_Duration
+from parental_leave
+where unPaid_paternity_leave > 0
+group by industry
+order by Average_Duration desc
+limit 5;
+
+#Top 5 Industries with the most unpaid_maternity_leave duration
+select industry, count(company) as count_companies, AVG(unPaid_Paternity_Leave) as Average_Duration
+from parental_leave
+where unPaid_maternity_leave > 0
+group by industry
+order by Average_Duration desc
+limit 5;
+
+#Top 5 Companies with the most paid_maternity_leave duration
+select company, round(AVG(Paid_maternity_Leave),0) as Average_Duration
+from parental_leave
+where Paid_maternity_leave > 0
+group by company
+order by Average_Duration desc
+limit 5;
+
+
+#Top 5 Companies with the most paid_paternity_leave duration
+select company, round(AVG(Paid_paternity_Leave),0) as Average_Duration
+from parental_leave
+where Paid_paternity_leave > 0
+group by company
+order by Average_Duration desc
+limit 5;
+
+# Tenure for which churned customers stayed with Maven
+
+SELECT
+    CASE 
+        WHEN paid_maternity_leave > 0 THEN 'Paid_Maternity'
+        WHEN unpaid_maternity_leave = 0 THEN 'Unpaid_Maternity'
+        WHEN paid_paternity_leave > 0 THEN 'paid_Paternity'
+        ELSE 'unPaid_Paternity'
+    END AS Leave_Status,
+    ROUND(COUNT(company) * 100.0 / SUM(COUNT(company)) OVER(),1) AS Duration_Percentage
+FROM parental_leave
+GROUP BY
+    CASE 
+        WHEN paid_maternity_leave > 0 THEN 'Paid_Maternity'
+        WHEN unpaid_maternity_leave = 0 THEN 'Unpaid_Maternity'
+        WHEN paid_paternity_leave > 0 THEN 'paid_Paternity'
+        ELSE 'unPaid_Paternity'
+    END
+ORDER BY Duration_Percentage DESC;
